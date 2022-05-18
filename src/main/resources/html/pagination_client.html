@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Разбивка на страницы на стороне клиента (pagination.js)</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/pagination.css">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/pagination.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <section>
+            <div id="data-container"></div>
+            <div id="pagination"></div>
+        </section>
+    </div>
+
+<script>
+$(async function () {    
+    let pagination = $('#pagination');
+    var requestOptions = {
+        method: 'GET',
+        redirect: 'follow'
+    };
+    let result = [];
+    let limit = 10; let page = 0;
+    //await fetch(`http://127.0.0.1:8080/users?limit=${limit}&page=${page}`, requestOptions)
+    await fetch(`http://127.0.0.1:8080/users/all`, requestOptions)
+        .then(response => response.json())
+        .then(response => result.push(response))
+        .catch(error => console.log('error', error));
+
+    //console.log(result)
+
+    pagination.pagination({
+        dataSource: result[0],
+        pageSize: 10,
+        callback: function (data, pagination) {
+            var container = $('#data-container');
+            container.empty();
+            var table = $('<table>');
+            table.addClass('table table-striped m-3');
+            container.append(table);
+            var tbody = $('<tbody>');
+            table.append(tbody);  
+            //Заголовок
+            var tr = $('<tr>');
+            tbody.append(tr);
+            tr.append($('<th>').html('Фамилия'));
+            tr.append($('<th>').html('Имя'));
+            tr.append($('<th>').html('Отчество'));
+            response = result[0];
+
+            $.each(data, function (index, item) {
+                var tr = $('<tr>');
+                var surname = $('<td>').html(item.surname);
+                tr.append(surname);
+                var name = $('<td>').html(item.name);
+                tr.append(name);
+                var patronymic = $('<td>').html(item.patronymic);
+                tr.append(patronymic);
+
+                //Кнопки
+                var id = response.id;
+                table.append(tr);
+            }
+            );
+        }
+    })
+})
+
+</script>
+</body>
+</html>
